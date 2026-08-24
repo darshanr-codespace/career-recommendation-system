@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Register — CareerAI{% endblock %}
+{% block content %}
+<div class="auth-page d-flex align-items-center justify-content-center py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="card border-0 shadow-lg auth-card">
+          <div class="card-body p-5">
+            <div class="text-center mb-4">
+              <div class="auth-icon mb-3"><i class="bi bi-person-plus-fill text-primary fs-1"></i></div>
+              <h2 class="fw-bold">Create Your Account</h2>
+              <p class="text-muted">Start your AI-powered career journey in 30 seconds</p>
+            </div>
+
+            <div id="regAlert" class="alert d-none"></div>
+
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label fw-semibold">Full Name</label>
+                <input type="text" id="regName" class="form-control form-control-lg" placeholder="Arjun Sharma" />
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-semibold">Email Address</label>
+                <input type="email" id="regEmail" class="form-control form-control-lg" placeholder="arjun@example.com" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Age</label>
+                <input type="number" id="regAge" class="form-control form-control-lg" placeholder="20" min="13" max="60" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Gender</label>
+                <select id="regGender" class="form-select form-select-lg">
+                  <option value="">Select</option>
+                  <option>Male</option><option>Female</option><option>Non-binary</option><option>Prefer not to say</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-semibold">Education Level</label>
+                <select id="regEdu" class="form-select form-select-lg">
+                  <option value="">Select your level</option>
+                  <option>High School</option>
+                  <option>Undergraduate</option>
+                  <option>Postgraduate</option>
+                  <option>Professional</option>
+                  <option>Doctorate</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-semibold">Password</label>
+                <input type="password" id="regPassword" class="form-control form-control-lg" placeholder="Min 6 characters" />
+              </div>
+            </div>
+
+            <button id="regBtn" class="btn btn-primary btn-lg w-100 fw-bold mt-4" onclick="doRegister()">
+              <span id="regSpinner" class="spinner-border spinner-border-sm me-2 d-none"></span>
+              Create Account &amp; Start
+            </button>
+
+            <hr class="my-4" />
+            <p class="text-center text-muted mb-0">
+              Already have an account? <a href="/login" class="text-primary fw-semibold">Sign in</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function doRegister() {
+  const name     = document.getElementById('regName').value.trim();
+  const email    = document.getElementById('regEmail').value.trim();
+  const password = document.getElementById('regPassword').value;
+  const age      = document.getElementById('regAge').value;
+  const gender   = document.getElementById('regGender').value;
+  const edu      = document.getElementById('regEdu').value;
+  const btn      = document.getElementById('regBtn');
+  const spinner  = document.getElementById('regSpinner');
+  const alert    = document.getElementById('regAlert');
+
+  if (!name || !email || !password) { showAlert(alert,'danger','Name, email and password are required.'); return; }
+  if (password.length < 6)          { showAlert(alert,'danger','Password must be at least 6 characters.'); return; }
+
+  btn.disabled = true; spinner.classList.remove('d-none');
+
+  const res  = await fetch('/auth/register', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({name, email, password, age: age||null, gender, education_level: edu})
+  });
+  const data = await res.json();
+  btn.disabled = false; spinner.classList.add('d-none');
+
+  if (res.ok) { window.location.href = (data.redirect || '/profile?new=1'); }
+  else { showAlert(alert,'danger', data.error || 'Registration failed.'); }
+}
+</script>
+{% endblock %}

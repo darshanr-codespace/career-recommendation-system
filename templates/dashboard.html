@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — CareerAI{% endblock %}
+{% block content %}
+<div class="container py-5">
+
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+    <div>
+      <h2 class="fw-bold mb-1">Your Career Dashboard</h2>
+      <p class="text-muted mb-0">AI-powered recommendations based on your unique profile</p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+      <a href="/profile" class="btn btn-outline-primary"><i class="bi bi-pencil-fill me-1"></i>Update Profile</a>
+      <button class="btn btn-primary fw-bold" id="refreshBtn" onclick="loadRecommendations()">
+        <span id="refreshSpinner" class="spinner-border spinner-border-sm me-1 d-none"></span>
+        <i class="bi bi-cpu-fill me-1"></i>Run AI Engine
+      </button>
+      <a href="/api/report/download" target="_blank" class="btn btn-success fw-bold">
+        <i class="bi bi-file-earmark-pdf-fill me-1"></i>Report
+      </a>
+    </div>
+  </div>
+
+  <!-- Test Your Knowledge CTA -->
+  <div class="knowledge-cta-card mb-5 p-4 rounded-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
+    <div class="d-flex align-items-center gap-3">
+      <div class="cta-icon-wrapper">
+        <i class="bi bi-patch-question-fill fs-1 text-white"></i>
+      </div>
+      <div class="text-white">
+        <h5 class="fw-bold mb-1">Test Your Knowledge</h5>
+        <p class="mb-0 opacity-75 small">Take our AI-powered skill assessment and get instant gap analysis with personalised recommendations</p>
+      </div>
+    </div>
+    <a href="/assessment" class="btn btn-white fw-bold px-4 py-2 test-knowledge-btn">
+      <i class="bi bi-play-circle-fill me-2"></i>Start Assessment
+    </a>
+  </div>
+
+  <!-- Sort bar -->
+  <div class="d-flex gap-2 mb-4 flex-wrap align-items-center">
+    <span class="text-muted fw-semibold small me-2">Sort by:</span>
+    <button class="btn btn-sm btn-primary sort-btn active" onclick="sortCards('score', this)">Compatibility</button>
+    <button class="btn btn-sm btn-outline-secondary sort-btn" onclick="sortCards('salary', this)">Salary</button>
+    <button class="btn btn-sm btn-outline-secondary sort-btn" onclick="sortCards('growth', this)">Growth</button>
+  </div>
+
+  <div id="dashAlert" class="alert d-none"></div>
+
+  <!-- Skeleton -->
+  <div id="skeleton" class="row g-4">
+    {% for _ in range(6) %}
+    <div class="col-md-6 col-lg-4">
+      <div class="card border-0 shadow-sm p-4 h-100">
+        <div class="skeleton-line w-75 mb-2"></div>
+        <div class="skeleton-line w-50 mb-3"></div>
+        <div class="skeleton-line w-100 mb-1"></div>
+        <div class="skeleton-line w-100 mb-4"></div>
+        <div class="skeleton-line w-25"></div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Cards grid -->
+  <div id="cardsGrid" class="row g-4 d-none"></div>
+
+  <!-- Empty state -->
+  <div id="emptyState" class="text-center py-5 d-none">
+    <i class="bi bi-search fs-1 text-muted d-block mb-3"></i>
+    <h5 class="fw-bold">No Recommendations Yet</h5>
+    <p class="text-muted mb-4">Complete your profile first, then run the AI engine.</p>
+    <a href="/profile" class="btn btn-primary px-4">Build Profile</a>
+  </div>
+
+  <!-- Jobs CTA -->
+  <div class="text-center mt-5 pt-3 border-top" id="jobsCta" style="display:none!important;">
+    <p class="text-muted mb-3">Ready to apply? Explore 100+ companies hiring right now.</p>
+    <a href="/companies" class="btn btn-outline-primary fw-semibold px-4">
+      <i class="bi bi-building me-2"></i>Explore Companies & Jobs
+    </a>
+  </div>
+</div>
+
+<!-- CAREER HOVER MODAL -->
+<div class="modal fade" id="careerModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content border-0 shadow-lg career-modal-glass">
+      <div class="modal-header border-0 pb-0">
+        <div>
+          <h5 class="modal-title fw-bold" id="modalCareerName"></h5>
+          <span class="badge bg-primary bg-opacity-10 text-primary" id="modalDomain"></span>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body pt-2" id="modalBody">
+        <div class="text-center py-4"><div class="spinner-border text-primary"></div></div>
+      </div>
+      <div class="modal-footer border-0">
+        <a id="modalCareerLink" href="#" class="btn btn-primary fw-bold">
+          <i class="bi bi-graph-up-arrow me-1"></i>View Skill Gap & Career Path
+        </a>
+        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

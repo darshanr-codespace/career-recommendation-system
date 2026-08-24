@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block title %}CareerAI — AI-Powered Career Guidance{% endblock %}
+
+{% block content %}
+<!-- HERO -->
+<section class="hero-section d-flex align-items-center">
+  <div class="container text-center text-white py-5">
+    <span class="badge bg-warning text-dark fw-semibold mb-3 px-3 py-2 fs-6">
+      <i class="bi bi-stars me-1"></i>Powered by Hybrid AI
+    </span>
+    <h1 class="display-3 fw-bold mb-4">
+      Discover Your <span class="text-warning">Ideal Career</span><br/>with Artificial Intelligence
+    </h1>
+    <p class="lead mb-5 mx-auto" style="max-width:640px;opacity:.9;">
+      Our hybrid recommendation engine analyses your skills, interests, academic performance and personality 
+      to match you with the careers where you'll truly thrive.
+    </p>
+    <div class="d-flex gap-3 justify-content-center flex-wrap">
+      <a href="/register" class="btn btn-warning btn-lg fw-bold px-5 shadow">
+        <i class="bi bi-rocket-takeoff-fill me-2"></i>Start for Free
+      </a>
+      <a href="#how" class="btn btn-outline-light btn-lg px-5">
+        <i class="bi bi-play-circle me-2"></i>How It Works
+      </a>
+    </div>
+    <!-- Stats -->
+    <div class="row g-4 mt-5 justify-content-center">
+      {% for stat in [("25+","Career Paths"),("87%","ML Accuracy"),("7","AI Modules"),("24/7","Available")] %}
+      <div class="col-6 col-md-3">
+        <div class="stat-card p-3 rounded-3 text-center">
+          <div class="display-6 fw-bold text-warning">{{ stat[0] }}</div>
+          <div class="small opacity-75">{{ stat[1] }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how" class="py-6 bg-light">
+  <div class="container py-5">
+    <div class="text-center mb-5">
+      <h2 class="fw-bold display-6">How It Works</h2>
+      <p class="text-muted">Four simple steps to your personalised career plan</p>
+    </div>
+    <div class="row g-4 justify-content-center">
+      {% set steps = [
+        ("bi-person-plus-fill","1. Create Profile","Register and tell us about your education, skills and interests.","primary"),
+        ("bi-clipboard2-check-fill","2. Take Assessment","Complete our AI-powered skill & personality assessment.","warning"),
+        ("bi-cpu-fill","3. Get Recommendations","Our hybrid engine ranks the top careers matched to your profile.","success"),
+        ("bi-graph-up-arrow","4. Plan Your Path","Analyse skill gaps, view progression maps and access learning resources.","info"),
+      ] %}
+      {% for icon, title, desc, color in steps %}
+      <div class="col-sm-6 col-lg-3">
+        <div class="card h-100 border-0 shadow-sm text-center p-4 step-card">
+          <div class="icon-circle bg-{{ color }} bg-opacity-10 mx-auto mb-3">
+            <i class="bi {{ icon }} text-{{ color }} fs-2"></i>
+          </div>
+          <h5 class="fw-bold">{{ title }}</h5>
+          <p class="text-muted small mb-0">{{ desc }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="py-6">
+  <div class="container py-5">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6">
+        <span class="badge bg-primary bg-opacity-10 text-primary mb-3">AI-Powered Engine</span>
+        <h2 class="fw-bold display-6 mb-4">Three AI Models.<br/>One Perfect Match.</h2>
+        {% for feat in [
+          ("bi-diagram-3-fill","Content-Based Filtering","Matches your profile features to career requirements using cosine similarity."),
+          ("bi-people-fill","Collaborative Filtering","Learns from thousands of similar user journeys via SVD matrix factorisation."),
+          ("bi-tree-fill","Random Forest Classifier","Predicts your best-fit career category with 87%+ cross-validated accuracy."),
+        ] %}
+        <div class="d-flex gap-3 mb-3">
+          <div class="flex-shrink-0">
+            <div class="icon-sm bg-primary bg-opacity-10 rounded-2 d-flex align-items-center justify-content-center">
+              <i class="bi {{ feat[0] }} text-primary"></i>
+            </div>
+          </div>
+          <div>
+            <h6 class="fw-bold mb-1">{{ feat[1] }}</h6>
+            <p class="text-muted small mb-0">{{ feat[2] }}</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="col-lg-6">
+        <div class="card border-0 shadow-lg p-4 feature-card">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="fw-bold text-primary">Score Fusion Weights</span>
+            <span class="badge bg-success">Live</span>
+          </div>
+          {% for label, pct, color in [("Content-Based","40","primary"),("Collaborative","30","warning"),("Random Forest","30","success")] %}
+          <div class="mb-3">
+            <div class="d-flex justify-content-between mb-1">
+              <small class="fw-semibold">{{ label }}</small>
+              <small class="text-muted">{{ pct }}%</small>
+            </div>
+            <div class="progress" style="height:8px;">
+              <div class="progress-bar bg-{{ color }}" style="width:{{ pct }}%"></div>
+            </div>
+          </div>
+          {% endfor %}
+          <hr />
+          <div class="d-flex gap-3 text-center">
+            {% for label, val in [("Careers Covered","25+"),("ML Accuracy","87%+"),("Skills Tracked","30+")] %}
+            <div class="flex-fill">
+              <div class="fw-bold text-primary">{{ val }}</div>
+              <div class="text-muted" style="font-size:.75rem;">{{ label }}</div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section py-6 text-white text-center">
+  <div class="container py-5">
+    <h2 class="display-5 fw-bold mb-3">Ready to Find Your Career?</h2>
+    <p class="lead mb-4 opacity-75">Join thousands of students who've already discovered their path.</p>
+    <a href="/register" class="btn btn-warning btn-lg fw-bold px-5 shadow-lg">
+      <i class="bi bi-arrow-right-circle-fill me-2"></i>Get Started — It's Free
+    </a>
+  </div>
+</section>
+{% endblock %}

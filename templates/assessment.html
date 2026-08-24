@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}Test Your Knowledge — CareerAI{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width:780px;">
+
+  <!-- Landing state -->
+  <div id="landingView">
+    <div class="text-center mb-5">
+      <div class="icon-circle bg-warning bg-opacity-10 mx-auto mb-3" style="width:80px;height:80px;">
+        <i class="bi bi-patch-question-fill text-warning fs-1"></i>
+      </div>
+      <h2 class="fw-bold">Test Your Knowledge</h2>
+      <p class="text-muted mb-4">AI-powered MCQ assessment tailored to your skills and career interests.<br>Get detailed skill gap analysis after completion.</p>
+      <div class="row g-3 justify-content-center mb-4">
+        {% for icon,label,desc in [("bi-clock-fill","~10 mins","Quick assessment"),("bi-list-check","15 Questions","Across 3 domains"),("bi-graph-up-arrow","AI Analysis","Instant results")] %}
+        <div class="col-sm-4">
+          <div class="card border-0 bg-light p-3 text-center h-100">
+            <i class="bi {{ icon }} fs-2 text-primary mb-1 d-block"></i>
+            <div class="fw-bold">{{ label }}</div>
+            <div class="text-muted small">{{ desc }}</div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <button class="btn btn-warning btn-lg fw-bold px-5 shadow assessment-cta" onclick="startAssessment()">
+        <i class="bi bi-play-circle-fill me-2"></i>Start Assessment
+      </button>
+    </div>
+  </div>
+
+  <!-- Quiz state -->
+  <div id="quizView" class="d-none">
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+      <div>
+        <span class="badge bg-primary" id="qDomainBadge">Domain</span>
+        <span class="badge bg-light text-dark border ms-1" id="qLevelBadge">easy</span>
+      </div>
+      <div class="text-muted small">Question <span id="qCurrent">1</span> of <span id="qTotal">15</span></div>
+    </div>
+    <div class="progress mb-4" style="height:8px;">
+      <div id="quizProgress" class="progress-bar bg-warning transition-bar" style="width:0%"></div>
+    </div>
+    <div class="card border-0 shadow-sm p-4 mb-4">
+      <h5 class="fw-bold mb-4" id="questionText">Loading question…</h5>
+      <div id="optionsGrid" class="row g-3"></div>
+    </div>
+    <div class="d-flex justify-content-between">
+      <button class="btn btn-outline-secondary" id="prevQBtn" onclick="prevQuestion()" disabled>
+        <i class="bi bi-arrow-left me-1"></i>Previous
+      </button>
+      <button class="btn btn-primary fw-bold px-4" id="nextQBtn" onclick="nextQuestion()">
+        Next <i class="bi bi-arrow-right ms-1"></i>
+      </button>
+      <button class="btn btn-success fw-bold px-4 d-none" id="submitQBtn" onclick="submitAssessment()">
+        <span id="submitQSpinner" class="spinner-border spinner-border-sm me-2 d-none"></span>
+        Submit & Analyse
+      </button>
+    </div>
+  </div>
+
+  <!-- Results state -->
+  <div id="resultsView" class="d-none">
+    <div class="text-center mb-4">
+      <div class="display-4 fw-bold text-primary" id="overallScore">0%</div>
+      <p class="text-muted">Overall Assessment Score</p>
+    </div>
+    <div class="row g-4 mb-4">
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm p-4 h-100">
+          <h6 class="fw-bold mb-3"><i class="bi bi-bar-chart-fill text-primary me-2"></i>Domain Scores</h6>
+          <div id="domainScores"></div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm p-4 h-100">
+          <canvas id="assessRadar" height="200"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="row g-4 mb-4">
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm p-4 h-100 text-center">
+          <i class="bi bi-trophy-fill text-warning fs-2 mb-2 d-block"></i>
+          <h6 class="fw-bold">Strengths</h6>
+          <div id="strengthsList" class="d-flex flex-wrap gap-1 justify-content-center mt-2"></div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm p-4 h-100 text-center">
+          <i class="bi bi-exclamation-triangle-fill text-danger fs-2 mb-2 d-block"></i>
+          <h6 class="fw-bold">Areas to Improve</h6>
+          <div id="weakList" class="d-flex flex-wrap gap-1 justify-content-center mt-2"></div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm p-4 h-100 text-center">
+          <i class="bi bi-mortarboard-fill text-primary fs-2 mb-2 d-block"></i>
+          <h6 class="fw-bold">Career Readiness</h6>
+          <div id="readinessScore" class="display-6 fw-bold text-primary mt-2"></div>
+          <div id="readinessCareer" class="text-muted small"></div>
+        </div>
+      </div>
+    </div>
+    <!-- Recommendations -->
+    <div id="recommendationsSection" class="card border-0 shadow-sm p-4 mb-4"></div>
+    <div class="text-center">
+      <button class="btn btn-outline-primary me-2" onclick="retakeAssessment()">
+        <i class="bi bi-arrow-clockwise me-1"></i>Retake Assessment
+      </button>
+      <a href="/dashboard" class="btn btn-primary fw-bold">
+        <i class="bi bi-grid-fill me-1"></i>View Career Matches
+      </a>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/assessment.js') }}"></script>
+{% endblock %}

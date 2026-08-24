@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}Companies & Jobs — CareerAI{% endblock %}
+{% block content %}
+<div class="container py-5">
+
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+    <div>
+      <h2 class="fw-bold mb-1">Explore Companies & Jobs</h2>
+      <p class="text-muted mb-0">100+ top companies · Real job roles · Filter by salary, location & domain</p>
+    </div>
+    <div class="d-flex gap-2">
+      <button class="btn btn-outline-warning fw-semibold" onclick="loadBookmarks()">
+        <i class="bi bi-bookmark-heart-fill me-1"></i>Saved Jobs
+      </button>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <ul class="nav nav-pills mb-4 gap-2" id="mainTabs">
+    <li class="nav-item"><button class="nav-link active" onclick="switchTab('jobs',this)"><i class="bi bi-briefcase-fill me-1"></i>Job Listings</button></li>
+    <li class="nav-item"><button class="nav-link" onclick="switchTab('companies',this)"><i class="bi bi-building me-1"></i>Companies</button></li>
+    <li class="nav-item"><button class="nav-link" onclick="switchTab('bookmarks',this)"><i class="bi bi-bookmark-heart-fill me-1"></i>Saved</button></li>
+  </ul>
+
+  <!-- Search & Filter bar -->
+  <div class="card border-0 shadow-sm p-3 mb-4">
+    <div class="row g-2 align-items-end">
+      <div class="col-md-4">
+        <div class="input-group">
+          <span class="input-group-text bg-white"><i class="bi bi-search text-muted"></i></span>
+          <input type="text" id="searchInput" class="form-control border-start-0" placeholder="Search jobs, companies, skills…" oninput="debounceSearch()">
+        </div>
+      </div>
+      <div class="col-md-2">
+        <select id="filterDomain" class="form-select" onchange="applyFilters()">
+          <option value="">All Domains</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <select id="filterLocation" class="form-select" onchange="applyFilters()">
+          <option value="">All Locations</option>
+          <option>Bangalore</option><option>Hyderabad</option><option>Mumbai</option>
+          <option>Gurgaon</option><option>Noida</option><option>Chennai</option>
+          <option>Pune</option><option>Remote</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <select id="filterType" class="form-select" onchange="applyFilters()">
+          <option value="">All Types</option>
+          <option value="Full-time">Full-time</option>
+          <option value="Internship">Internship</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <select id="filterSalary" class="form-select" onchange="applyFilters()">
+          <option value="">Any Salary</option>
+          <option value="5">5+ LPA</option>
+          <option value="10">10+ LPA</option>
+          <option value="15">15+ LPA</option>
+          <option value="20">20+ LPA</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results count -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="text-muted small" id="resultCount">Loading…</div>
+    <div class="d-flex gap-2">
+      <button class="btn btn-sm btn-outline-secondary layout-btn active" onclick="setLayout('grid',this)" title="Grid"><i class="bi bi-grid-fill"></i></button>
+      <button class="btn btn-sm btn-outline-secondary layout-btn" onclick="setLayout('list',this)" title="List"><i class="bi bi-list-ul"></i></button>
+    </div>
+  </div>
+
+  <!-- Grid -->
+  <div id="itemsGrid" class="row g-3"></div>
+
+  <!-- Skeleton -->
+  <div id="skeleton" class="row g-3">
+    {% for _ in range(6) %}
+    <div class="col-md-6 col-lg-4">
+      <div class="card border-0 shadow-sm p-4">
+        <div class="skeleton-line w-50 mb-2"></div>
+        <div class="skeleton-line w-75 mb-3"></div>
+        <div class="skeleton-line w-100 mb-1"></div>
+        <div class="skeleton-line w-60 mb-3"></div>
+        <div class="skeleton-line w-25"></div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Pagination -->
+  <nav class="mt-4">
+    <ul class="pagination justify-content-center" id="pagination"></ul>
+  </nav>
+</div>
+
+<!-- JOB DETAIL MODAL -->
+<div class="modal fade" id="jobModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="modal-header border-0 glass-header">
+        <div class="d-flex gap-3 align-items-center">
+          <div class="company-logo-icon"><i id="modalLogoIcon" class="bi bi-building fs-2 text-primary"></i></div>
+          <div>
+            <h5 class="modal-title fw-bold mb-0" id="modalJobTitle">Job Title</h5>
+            <div class="text-muted small" id="modalCompanyName">Company</div>
+          </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4" id="modalBody">
+        <div class="text-center py-4"><div class="spinner-border text-primary"></div></div>
+      </div>
+      <div class="modal-footer border-0">
+        <button id="modalBookmarkBtn" class="btn btn-outline-warning" onclick="toggleJobBookmark()">
+          <i class="bi bi-bookmark-fill me-1"></i>Save Job
+        </button>
+        <a id="modalApplyBtn" href="#" target="_blank" class="btn btn-primary fw-bold">
+          <i class="bi bi-send-fill me-1"></i>Apply Now
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/companies.js') }}"></script>
+{% endblock %}

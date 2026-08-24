@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% block title %}Profile — CareerAI{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width:900px;">
+  <!-- New-user onboarding banner (shown only on ?new=1) -->
+  <div id="onboardingBanner" class="alert border-0 mb-4 d-none"
+       style="background:linear-gradient(135deg,#EFF6FF,#F0FDF4);border-left:4px solid #2563EB!important;border-radius:12px;">
+    <div class="d-flex align-items-start gap-3">
+      <i class="bi bi-stars fs-3 text-primary flex-shrink-0 mt-1"></i>
+      <div>
+        <div class="fw-bold mb-1">Welcome! Let's set up your profile 🎉</div>
+        <div class="text-muted small mb-2">
+          Fill in your <strong>education</strong>, <strong>interests</strong>, and <strong>career goal</strong>
+          so our AI can give you personalised career recommendations.
+        </div>
+        <div class="d-flex gap-2 flex-wrap" id="missingFieldsBadges"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <div>
+      <h2 class="fw-bold mb-1">Your Profile</h2>
+      <p class="text-muted mb-0" id="profileSubtitle">Keep your profile updated for better career matches</p>
+    </div>
+    <button class="btn btn-primary fw-bold px-4" onclick="saveProfile()">
+      <span id="saveSpinner" class="spinner-border spinner-border-sm me-2 d-none"></span>
+      <i class="bi bi-check-circle-fill me-1"></i>Save &amp; Continue
+    </button>
+  </div>
+  <div class="row g-4">
+    <!-- LEFT -->
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm p-4 mb-4">
+        <h6 class="fw-bold mb-3"><i class="bi bi-file-earmark-person-fill text-primary me-2"></i>Resume Upload</h6>
+        <div id="dropZone" class="drop-zone rounded-3 text-center p-4 mb-3"
+             ondragover="event.preventDefault();this.classList.add('drag-over')"
+             ondragleave="this.classList.remove('drag-over')"
+             ondrop="handleDrop(event)">
+          <i class="bi bi-cloud-upload-fill fs-1 text-primary mb-2 d-block"></i>
+          <div class="fw-semibold mb-1">Drag & Drop Resume</div>
+          <div class="text-muted small mb-3">PDF or DOCX, max 5MB</div>
+          <label class="btn btn-outline-primary btn-sm px-4">
+            <i class="bi bi-folder2-open me-1"></i>Browse File
+            <input type="file" id="resumeFile" accept=".pdf,.docx,.doc" class="d-none" onchange="uploadResume(this.files[0])">
+          </label>
+        </div>
+        <div id="uploadStatus" class="d-none">
+          <div class="d-flex align-items-center gap-2 p-2 bg-success bg-opacity-10 rounded-2">
+            <i class="bi bi-file-earmark-check-fill text-success"></i>
+            <div class="flex-fill">
+              <div class="fw-semibold small" id="uploadedFileName">resume.pdf</div>
+              <div class="text-muted" style="font-size:.75rem">Parsed successfully</div>
+            </div>
+            <label class="btn btn-sm btn-outline-success" style="font-size:.75rem;">
+              Re-upload<input type="file" accept=".pdf,.docx" class="d-none" onchange="uploadResume(this.files[0])">
+            </label>
+          </div>
+        </div>
+        <div id="uploadProgress" class="d-none mt-2">
+          <div class="progress" style="height:6px;">
+            <div class="progress-bar progress-bar-striped progress-bar-animated w-100"></div>
+          </div>
+          <div class="text-muted small text-center mt-1">Parsing resume…</div>
+        </div>
+      </div>
+      <div class="card border-0 shadow-sm p-4">
+        <h6 class="fw-bold mb-3"><i class="bi bi-eye-fill text-success me-2"></i>Live Preview</h6>
+        <div class="text-center mb-3">
+          <div class="icon-circle bg-primary bg-opacity-10 mx-auto mb-2" style="width:56px;height:56px;">
+            <i class="bi bi-person-fill text-primary fs-3"></i>
+          </div>
+          <div id="previewName" class="fw-bold">—</div>
+          <div id="previewEdu" class="small text-muted">—</div>
+        </div>
+        <hr/>
+        <div class="mb-2">
+          <div class="text-muted small fw-semibold mb-1">SKILLS</div>
+          <div id="previewSkills" class="d-flex flex-wrap gap-1"></div>
+        </div>
+        <div>
+          <div class="text-muted small fw-semibold mb-1 mt-2">INTERESTS</div>
+          <div id="previewInterests" class="d-flex flex-wrap gap-1"></div>
+        </div>
+        <div class="mt-2">
+          <div class="text-muted small fw-semibold mb-1">CAREER GOAL</div>
+          <div id="previewGoal" class="small text-primary fst-italic">—</div>
+        </div>
+      </div>
+    </div>
+    <!-- RIGHT -->
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm p-4">
+        <h6 class="fw-bold mb-3"><i class="bi bi-person-fill text-primary me-2"></i>Basic Information</h6>
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label class="form-label fw-semibold small">Full Name</label>
+            <input type="text" id="pName" class="form-control" placeholder="Arjun Sharma" oninput="updatePreview()">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold small">Highest Education</label>
+            <select id="pEdu" class="form-select" onchange="updatePreview()">
+              <option value="">Select…</option>
+              <option>High School</option><option>Undergraduate</option>
+              <option>Postgraduate</option><option>Professional</option><option>Doctorate</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold small">Age</label>
+            <input type="number" id="pAge" class="form-control" placeholder="21" min="13" max="60">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold small">Gender</label>
+            <select id="pGender" class="form-select">
+              <option value="">Select…</option>
+              <option>Male</option><option>Female</option><option>Non-binary</option><option>Prefer not to say</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold small">
+              Highest Qualification
+              <span class="badge bg-danger ms-1" style="font-size:.6rem;">Required</span>
+            </label>
+            <input type="text" id="pQualification" class="form-control"
+                   placeholder="e.g. B.Tech, MBA, 12th Pass…" oninput="updatePreview()">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold small">Specialization / Stream</label>
+            <input type="text" id="pSpecialization" class="form-control"
+                   placeholder="e.g. Computer Science, Commerce…">
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-semibold small">
+              Career Goal
+              <span class="badge bg-danger ms-1" style="font-size:.6rem;">Required</span>
+            </label>
+            <input type="text" id="pCareerGoal" class="form-control"
+                   placeholder="e.g. Become a Data Scientist, Start my own company…"
+                   oninput="updatePreview()">
+            <div class="form-text">This helps the AI understand what you're working towards.</div>
+          </div>
+        </div>
+        <hr/>
+        <h6 class="fw-bold mb-2"><i class="bi bi-tools text-warning me-2"></i>Skills</h6>
+        <p class="text-muted small mb-2">Add skills manually or auto-fill by uploading your resume.</p>
+        <div id="skillTags" class="d-flex flex-wrap gap-2 mb-3 min-h-tag"></div>
+        <div class="input-group mb-4" style="max-width:400px;">
+          <input type="text" id="skillInput" class="form-control" placeholder="e.g. Python, Figma…"
+                 onkeydown="if(event.key==='Enter'||event.key===','){event.preventDefault();addSkill()}">
+          <button class="btn btn-outline-primary" onclick="addSkill()"><i class="bi bi-plus-lg"></i> Add</button>
+        </div>
+        <hr/>
+        <h6 class="fw-bold mb-2">
+          <i class="bi bi-heart-fill text-danger me-2"></i>Career Interests
+          <span class="badge bg-danger ms-1" style="font-size:.6rem;">Required</span>
+        </h6>
+        <p class="text-muted small mb-2">Select at least one area you're interested in.</p>
+        <div class="d-flex flex-wrap gap-2 mb-4" id="interestBtns">
+          {% for d in ["Technology","Healthcare","Engineering","Business","Law","Design","Arts & Media","Science & Research","Education"] %}
+          <button type="button" class="btn btn-sm btn-outline-secondary interest-toggle"
+                  data-domain="{{ d }}" onclick="toggleInterest(this)">{{ d }}</button>
+          {% endfor %}
+        </div>
+        <hr/>
+        <h6 class="fw-bold mb-2"><i class="bi bi-briefcase-fill text-info me-2"></i>Experience <span class="text-muted fw-normal small">(Optional)</span></h6>
+        <div id="expList" class="mb-3"></div>
+        <button class="btn btn-outline-secondary btn-sm" onclick="addExpRow()">
+          <i class="bi bi-plus-lg me-1"></i>Add Experience
+        </button>
+        <hr/>
+        <h6 class="fw-bold mb-2"><i class="bi bi-person-badge-fill me-2" style="color:#7C3AED"></i>Personality Type</h6>
+        <div class="d-flex flex-wrap gap-2">
+          {% for code, label in [("R","Realistic"),("I","Investigative"),("A","Artistic"),("S","Social"),("E","Enterprising"),("C","Conventional")] %}
+          <button type="button" class="btn btn-sm btn-outline-secondary riasec-btn"
+                  data-code="{{ code }}" onclick="selectPersonality(this)">{{ code }} — {{ label }}</button>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/profile_v2.js') }}"></script>
+{% endblock %}
